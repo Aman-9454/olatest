@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ola Maps</title>
+    <!-- Ola Maps SDK aur CSS files yahan include karein -->
+    <link rel="stylesheet" href="https://assets.olamaps.io/ola-maps-gl-js/v1.12.0/ola-maps-gl.css">
+    <script src="https://assets.olamaps.io/ola-maps-gl-js/v1.12.0/ola-maps-gl.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        // Ola Maps API key
+        const apiKey = 'hsTXqp1dSR4JBPsQlw46vE2RSWj1Q7k1CfPtbgx6'; // **Apni asli API key yahan daalein**
+
+        // Map ko initialize karein
+        const map = new ola.Map({
+            container: 'map', // div ID jahan map render hoga
+            style: 'ola://styles/default', // Ola Maps ka default style
+            center: [80.9462, 26.8467], // Default center, Lucknow ke coordinates
+            zoom: 10, // Default zoom level
+            apiKey: apiKey // API key yahan zaroori hai
+        });
+
+        let originMarker; // Origin marker ko store karne ke liye
+        let destinationMarker; // Destination marker ko store karne ke liye
+
+        // Map load hone ke baad ki functionality
+        map.on('load', function() {
+            console.log('Map loaded successfully!');
+            // Yahan par initial markers ya route add kar sakte hain
+        });
+
+        // Flutter se call hone wala function jo origin marker set karega
+        function setOrigin(lat, lng) {
+            console.log('setOrigin called with:', lat, lng);
+            if (originMarker) {
+                originMarker.remove(); // Agar marker pehle se hai toh remove karein
+            }
+            originMarker = new ola.Marker({color: '#FF0000'}) // Lal marker
+                .setLngLat([lng, lat]) // Marker coordinates [lng, lat] format mein
+                .addTo(map);
+            map.flyTo({center: [lng, lat], zoom: 12}); // Map ko origin par fly karein
+        }
+
+        // Flutter se call hone wala function jo destination marker set karega
+        function setDestination(lat, lng) {
+            console.log('setDestination called with:', lat, lng);
+            if (destinationMarker) {
+                destinationMarker.remove(); // Agar marker pehle se hai toh remove karein
+            }
+            destinationMarker = new ola.Marker({color: '#0000FF'}) // Neela marker
+                .setLngLat([lng, lat]) // Marker coordinates [lng, lat] format mein
+                .addTo(map);
+            // Route dikhate samay map ko destination par fly karne ki zaroorat nahi
+        }
+
+        // Flutter se call hone wala function jo route dikhayega
+        function showRoute(startLat, startLng, endLat, endLng, routeCoordsJson) {
+            console.log('showRoute called from Flutter');
+            console.log('Start:', startLat, startLng);
+            console.log('End:', endLat, endLng);
+
+            const routeCoords = JSON.parse(routeCoordsJson);
+            console.log('Route Coordinates:', routeCoords);
+
+            // Existing route layers aur sources ko remove karein
+            if (map.getSource('route')) {
+                map.removeLayer('route');
+                map.removeSource('route');
+            }
+
+            // Route ko GeoJSON source ke roop mein add karein
+            map.addSource('route', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': routeCoords.map(coord => [coord, coord]) // Flutter se [lat, lng] aata hai, yahan [lng, lat] chahiye
+                    }
+                }
+            });
+
+            // Route ko line layer ke roop mein add karein
+            map.addLayer({
+                'id': 'route',
+                'type': 'line',
+                'source': 'route',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#007bff', // Route ka color
+                    'line-width': 6
+                }
+            });
+
+            // Start aur end markers add karein
+            setOrigin(startLat, startLng); // Origin marker
+            setDestination(endLat, endLng); // Destination marker
+
+            // Map ko route ke bounds tak fit karein
+            const bounds = new ola.LngLatBounds();
+            routeCoords.forEach(coord => {
+                bounds.extend([coord, coord]); // Extend [lng, lat] format mein
+            });
+            map.fitBounds(bounds, {
+                padding: 50 // Kuch space ke liye padding
+            });
+        }
+    </script>
+</body>
+</html>

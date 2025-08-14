@@ -1,0 +1,30 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://maps.olamaps.io/sdk/js?key=6_hgRvTCn43i7MrKZOIuuFjkWOwy-5_J"></script>
+<style>
+  html, body, #map {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  let map = new OlaMaps.Map("map", {
+    center: [77.5946, 12.9716], // Bengaluru
+    zoom: 14
+  });
+  let marker = new OlaMaps.Marker([77.5946, 12.9716]).addTo(map);
+
+  // This function will be called from Flutter
+  window.updateMarker = function(lat, lng) {
+    marker.setLngLat([lng, lat]);
+    map.setCenter([lng, lat]);
+  }
+</script>
+</body>
+</html> -->
