@@ -30,16 +30,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  flutter_map:
-  latlong2:
-  # google_maps_flutter: ^2.6.1
+  google_maps_flutter: ^2.12.3 
+  flutter_polyline_points: ^2.0.0 # For decoding directions API response
+  http: ^1.1.0                # For making HTTP requests (Directions API)
+  permission_handler: ^11.0.0  # For handling permissions
   geolocator: ^13.0.1
   geocoding: ^3.0.0
-  http: ^1.2.2
-  webview_flutter:
-  ola_maps:
-  uuid: 
+  flutter_google_places_sdk: ^0.4.2+1
+  google_api_headers: ^4.5.3
 
 dev_dependencies:
   flutter_test:

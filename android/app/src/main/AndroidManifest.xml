@@ -1,14 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
 <uses-feature android:name="android.hardware.location.gps"/>
 
     <application
         android:label="olamap"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+          <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDi3fgGMxojGJlNNmuTY7XihApjtNEPNxI"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,6 +26,8 @@
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
+     
+
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
@@ -33,11 +39,6 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-
-             <!-- <meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="hsTXqp1dSR4JBPsQlw46vE2RSWj1Q7k1CfPtbgx6" /> -->
-
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

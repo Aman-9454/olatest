@@ -1,26 +1,57 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
-import 'package:latlong2/latlong.dart';
-import 'package:uuid/uuid.dart';
+import 'package:olamap/working%20or%20main%20folder/direction_info.dart';
+
 
 class RouteService {
-  static const String apiKey = "hsTXqp1dSR4JBPsQlw46vE2RSWj1Q7k1CfPtbgx6";
-  static final String _uuid = const Uuid().v4();
+  static const String _googleApiKey = "AIzaSyBzkgWrbBZwkzIpNyGlqoj85Ig2JNyUb8E";
 
-  static Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
-    final url = Uri.parse("https://api.olamaps.io/routing/v1/directions?api_key=$apiKey");
-    final body = {
-      "origin": {"lng": start.longitude, "lat": start.latitude},
-      "destination": {"lng": end.longitude, "lat": end.latitude},
-      "geometries": "geojson",
-    };
+  Future<Polyline?> buildPolyline(LatLng origin, LatLng destination) async {
+    final polylinePoints = PolylinePoints();
 
-    final res = await http.post(url, headers: {"X-Request-Id": _uuid, "Content-Type": "application/json"}, body: jsonEncode(body));
-    if (res.statusCode != 200) return [];
+    final result = await polylinePoints.getRouteBetweenCoordinates(
+      request: PolylineRequest(
+        origin: PointLatLng(origin.latitude, origin.longitude),
+        destination: PointLatLng(destination.latitude, destination.longitude),
+        mode: TravelMode.driving,
+      ),
+      googleApiKey: _googleApiKey,
+    );
 
-    final data = jsonDecode(res.body);
-    final coords = data['routes']?[0]?['geometry']?['coordinates'] ?? [];
-    return (coords as List).map((c) => LatLng(c[1].toDouble(), c[0].toDouble())).toList();
+    if (result.points.isNotEmpty) {
+      final polylineCoordinates =
+          result.points.map((p) => LatLng(p.latitude, p.longitude)).toList();
+
+      return Polyline(
+        polylineId: const PolylineId('route'),
+        width: 5,
+        color: Colors.blue,
+        points: polylineCoordinates,
+      );
+    }
+    return null;
+  }
+
+  Future<DirectionsInfo?> fetchDirectionsInfo(LatLng origin, LatLng destination) async {
+    final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=$_googleApiKey');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['routes'] != null && data['routes'].isNotEmpty) {
+        final leg = data['routes'][0]['legs'][0];
+        return DirectionsInfo(
+          distance: leg['distance']['text'],
+          duration: leg['duration']['text'],
+        );
+      }
+    }
+    return null;
   }
 }
-
